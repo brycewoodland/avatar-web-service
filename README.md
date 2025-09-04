@@ -51,6 +51,7 @@ DB_URL=postgres://username:password@localhost:5432/avatar_api?sslmode=disable
 go mod tidy
 ```
 **4. Set up the database**
+
 Run the SQL scripts in db/migrations/ to create tables and relationships
 
 **5. Run the server**
