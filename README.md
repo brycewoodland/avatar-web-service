@@ -8,7 +8,7 @@ handle data persistence, and organize the application architecture effectively.
 
 ## Features
 
-- **Manage Nations** – Create, read, update, and delete nations.
+- **Manage Nations** – Read nations.
 
 - **Manage Factions** – Filter factions by nation, support pagination.
 
@@ -67,6 +67,8 @@ go run main.go
 ### Characters
 
 - ```GET /api/v1/characters``` – Get all characters
+  
+- ```GET /api/v1/characters/{:id}``` - Get a character by id
   
 - ```GET /api/v1/characters?nation=1&page=1&pageSize=10``` – Get characters filtered by nation with pagination
 
