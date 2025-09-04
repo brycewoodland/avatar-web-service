@@ -8,7 +8,7 @@ handle data persistence, and organize the application architecture effectively.
 
 ## Features
 
-- **Manage Nations** – Create, read, update, and delete nations.
+- **Manage Nations** – Read nations.
 
 - **Manage Factions** – Filter factions by nation, support pagination.
 
