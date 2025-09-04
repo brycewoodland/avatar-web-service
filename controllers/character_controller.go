@@ -12,44 +12,49 @@ import (
 
 // GET /api/v1/characters
 func GetCharactersHandler(w http.ResponseWriter, r *http.Request) {
-	// Filters
-	filters := map[string]string{
-		"nation": r.URL.Query().Get("nation"),
-	}
+	query := r.URL.Query()
 
-	// Pagination
-	page := 1
-	size := 10
-	if p := r.URL.Query().Get("page"); p != "" {
-		if parsed, err := strconv.Atoi(p); err == nil && parsed > 0 {
-			page = parsed
-		}
-	}
-	if s := r.URL.Query().Get("pageSize"); s != "" {
-		if parsed, err := strconv.Atoi(s); err == nil && parsed > 0 {
-			size = parsed
-		}
-	}
-	offset := (page - 1) * size
-
-	characters, err := models.GetAllCharacters(filters, size, offset)
-	if err != nil {
-		if strings.Contains(err.Error(), "invalid nation id") {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+	// Parse nation query parameter
+	var nationID *int
+	if val := query.Get("nation"); val != "" {
+		if n, err := strconv.Atoi(val); err == nil {
+			nationID = &n
+		} else {
+			http.Error(w, "Invalid nation parameter", http.StatusBadRequest)
 			return
 		}
+	}
+
+	// Parse pagination
+	page := 1
+	if val := query.Get("page"); val != "" {
+		if p, err := strconv.Atoi(val); err == nil && p > 0 {
+			page = p
+		}
+	}
+
+	pageSize := 10
+	if val := query.Get("pageSize"); val != "" {
+		if ps, err := strconv.Atoi(val); err == nil && ps > 0 {
+			pageSize = ps
+		}
+	}
+
+	// Fetch from model
+	characters, err := models.GetAllCharacters(nationID, page, pageSize)
+	if err != nil {
 		log.Printf("Error fetching characters: %v", err)
 		http.Error(w, "Failed to fetch characters", http.StatusInternalServerError)
 		return
 	}
 
+	// Return JSON
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(characters)
 }
 
 // GET /api/v1/characters/{id}
 func GetCharacterByIDHandler(w http.ResponseWriter, r *http.Request) {
-	// Extract ID from path
 	path := strings.TrimPrefix(r.URL.Path, "/api/v1/characters/")
 	id, err := strconv.Atoi(path)
 	if err != nil || id <= 0 {

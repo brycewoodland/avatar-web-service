@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/brycewoodland/avatar_last_airbender/db"
+	"github.com/brycewoodland/avatar_last_airbender/service"
 )
 
 type Character struct {
@@ -21,64 +21,50 @@ type Character struct {
 	EyeColor    *string  `json:"eye_color"`
 }
 
-// Fetch all characters with optional filters and pagination
-func GetAllCharacters(filters map[string]string, limit, offset int) ([]Character, error) {
+// Fetch all characters with optional nation filter and pagination
+func GetAllCharacters(nationID *int, page, pageSize int) ([]Character, error) {
+	page, pageSize = service.ValidatePagination(page, pageSize)
+
 	baseQuery := `
-        SELECT 
-            id, 
-            name, 
-            nation_id, 
-            date_of_birth, 
-            date_of_death, 
-            gender, 
-            height, 
-            hair_color, 
-            eye_color
-        FROM characters
-        WHERE 1=1
-    `
+		SELECT 
+			id, 
+			name, 
+			nation_id, 
+			date_of_birth, 
+			date_of_death,
+		    gender, 
+			height, 
+			hair_color, 
+			eye_color
+		FROM characters 
+		WHERE 1=1
+	`
+	args := []interface{}{}
+	paramIndex := 1
 
-	var conditions []string
-	var args []interface{}
-	argID := 1
-
-	// Add filters
-	nation := filters["nation"]
-	if nation != "" {
-		// Convert to int
-		nationID, err := strconv.Atoi(nation)
-		if err != nil {
-			// Invalid nation id, return an error instead of querying
-			return nil, fmt.Errorf("invalid nation id: %v", nation)
-		}
-
-		// Use the integer value in the query
-		conditions = append(conditions, fmt.Sprintf("nation_id = $%d", argID))
-		args = append(args, nationID)
-		argID++
+	if nationID != nil {
+		baseQuery += " AND nation_id = $" + strconv.Itoa(paramIndex)
+		args = append(args, *nationID)
+		paramIndex++
 	}
 
-	// Combine base query with conditions
-	if len(conditions) > 0 {
-		baseQuery += " AND " + strings.Join(conditions, " AND ")
-	}
+	offset := (page - 1) * pageSize
+	baseQuery += " ORDER BY id LIMIT $" + strconv.Itoa(paramIndex)
+	args = append(args, pageSize)
+	paramIndex++
+	baseQuery += " OFFSET $" + strconv.Itoa(paramIndex)
+	args = append(args, offset)
 
-	// Add pagination
-	baseQuery += fmt.Sprintf(" ORDER BY id LIMIT $%d OFFSET $%d", argID, argID+1)
-	args = append(args, limit, offset)
-
-	// Execute query
 	rows, err := db.DB.Query(baseQuery, args...)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	// Parse results
-	characters := make([]Character, 0)
+	characters := []Character{}
 	for rows.Next() {
 		var c Character
-		err := rows.Scan(
+		if err := rows.Scan(
 			&c.ID,
 			&c.Name,
 			&c.NationID,
@@ -88,8 +74,7 @@ func GetAllCharacters(filters map[string]string, limit, offset int) ([]Character
 			&c.Height,
 			&c.HairColor,
 			&c.EyeColor,
-		)
-		if err != nil {
+		); err != nil {
 			return nil, err
 		}
 		characters = append(characters, c)
@@ -101,22 +86,21 @@ func GetAllCharacters(filters map[string]string, limit, offset int) ([]Character
 // Fetch Character By ID
 func GetCharacterByID(characterID int) (*Character, error) {
 	query := `
-		SELECT
-			id,
-			name,
-			nation_id,
-			date_of_birth,
+		SELECT 
+			id, 
+			name, 
+			nation_id, 
+			date_of_birth, 
 			date_of_death,
-			gender,
-			height,
-			hair_color,
+		    gender, 
+			height, 
+			hair_color, 
 			eye_color
-		FROM characters
+		FROM characters 
 		WHERE id = $1
 	`
 
 	row := db.DB.QueryRow(query, characterID)
-
 	var c Character
 	err := row.Scan(
 		&c.ID,

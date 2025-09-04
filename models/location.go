@@ -7,15 +7,17 @@ import (
 	"github.com/brycewoodland/avatar_last_airbender/service"
 )
 
-type Faction struct {
+type Location struct {
 	ID          int     `json:"id"`
 	Name        string  `json:"name"`
-	NationID    *int    `json:"nationId"`
+	NationID    int     `json:"nationId"`
 	Description *string `json:"description"`
 }
 
-func GetAllFactions(nationID *int, page, pageSize int) ([]Faction, error) {
-    // --- Step 1: Business logic via helpers ---
+// Fetch all locations with optional filters and pagination
+func GetAllLocations(nationID *int, page, pageSize int) ([]Location, error) {
+	
+	// --- Step 1: Business logic via helpers ---
     page, pageSize = service.ValidatePagination(page, pageSize)
 
     rawFilters := map[string]string{}
@@ -49,14 +51,14 @@ func GetAllFactions(nationID *int, page, pageSize int) ([]Faction, error) {
     }
     defer rows.Close()
 
-    var factions []Faction
+    var locations []Location
     for rows.Next() {
-        var f Faction
-        if err := rows.Scan(&f.ID, &f.Name, &f.NationID, &f.Description); err != nil {
+        var l Location
+        if err := rows.Scan(&l.ID, &l.Name, &l.NationID, &l.Description); err != nil {
             return nil, err
         }
-        factions = append(factions, f)
+        locations = append(locations, l)
     }
 
-    return factions, nil
+    return locations, nil
 }
