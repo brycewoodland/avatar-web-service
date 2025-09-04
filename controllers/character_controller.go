@@ -25,20 +25,9 @@ func GetCharactersHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Parse pagination
-	page := 1
-	if val := query.Get("page"); val != "" {
-		if p, err := strconv.Atoi(val); err == nil && p > 0 {
-			page = p
-		}
-	}
-
-	pageSize := 10
-	if val := query.Get("pageSize"); val != "" {
-		if ps, err := strconv.Atoi(val); err == nil && ps > 0 {
-			pageSize = ps
-		}
-	}
+	// Parse pagination (let service.ValidatePagination enforce defaults later)
+	page, _ := strconv.Atoi(query.Get("page"))
+	pageSize, _ := strconv.Atoi(query.Get("pageSize"))
 
 	// Fetch from model
 	characters, err := models.GetAllCharacters(nationID, page, pageSize)
@@ -52,6 +41,7 @@ func GetCharactersHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(characters)
 }
+
 
 // GET /api/v1/characters/{id}
 func GetCharacterByIDHandler(w http.ResponseWriter, r *http.Request) {

@@ -9,6 +9,7 @@ import (
 	"github.com/brycewoodland/avatar_last_airbender/models"
 )
 
+// Get /api/v1/factions
 func GetAllFactionsHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
@@ -23,27 +24,19 @@ func GetAllFactionsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Parse Pagination
-	page := 1
-	if val := query.Get("page"); val != "" {
-		if p, err := strconv.Atoi(val); err == nil && p > 0 {
-			page = p
-		}
-	}
+	// Parse pagination (defaults handled in service.ValidatePagination)
+	page, _ := strconv.Atoi(query.Get("page"))
+	pageSize, _ := strconv.Atoi(query.Get("pageSize"))
 
-	pageSize := 10
-	if val := query.Get("pageSize"); val != "" {
-		if ps, err := strconv.Atoi(val); err == nil && ps > 0 {
-			pageSize = ps
-		}
-	}
-
+	// Fetch from model
 	factions, err := models.GetAllFactions(nation, page, pageSize)
 	if err != nil {
-		log.Fatalf("Error fetching factions: %v", err)
+		log.Printf("Error fetching factions: %v", err)
 		http.Error(w, "Failed to fetch factions", http.StatusInternalServerError)
 		return
 	}
+
+	// Return JSON
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(factions)
 }

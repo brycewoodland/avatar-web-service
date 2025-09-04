@@ -8,10 +8,10 @@ import (
 )
 
 type Location struct {
-	ID          int     `json:"id"`
-	Name        string  `json:"name"`
-	NationID    int     `json:"nationId"`
-	Description *string `json:"description"`
+	ID          int      `json:"id"`
+	Name        string   `json:"name"`
+	NationID    *int     `json:"nationId"`
+	Description *string  `json:"description"`
 }
 
 // Fetch all locations with optional filters and pagination
@@ -31,7 +31,7 @@ func GetAllLocations(nationID *int, page, pageSize int) ([]Location, error) {
     }
 
     // --- Step 2: Repository / SQL ---
-    baseQuery := "SELECT id, name, nation_id, description FROM factions WHERE 1 = 1"
+    baseQuery := "SELECT id, name, nation_id, description FROM locations WHERE 1 = 1"
     params := []interface{}{}
     paramIndex := 1
 

@@ -29,11 +29,12 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	// Character endpoint
+	// Endpoint / Routes
 	mux.HandleFunc("/api/v1/characters", controllers.GetCharactersHandler)
 	mux.HandleFunc("/api/v1/characters/", controllers.GetCharacterByIDHandler)
 	mux.HandleFunc("/api/v1/nations", controllers.GetAllNationsHandler)
 	mux.HandleFunc("/api/v1/factions", controllers.GetAllFactionsHandler)
+	mux.HandleFunc("/api/v1/locations", controllers.GetLocationsHandler)
 
 	fmt.Println("Server is running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", mux))
