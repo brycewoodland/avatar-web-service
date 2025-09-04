@@ -20,14 +20,19 @@ func GetCharactersHandler(w http.ResponseWriter, r *http.Request) {
     page := 1
     size := 10
 
-    if p := r.URL.Query().Get("page"); p != "" {
-        if parsed, err := strconv.Atoi(p); err == nil && parsed > 0 {
+    p := r.URL.Query().Get("page")
+    if p != "" {
+        parsed, err := strconv.Atoi(p)
+        if err == nil && parsed > 0 {
             page = parsed
         }
     }
 
-    if s := r.URL.Query().Get("pageSize"); s != "" {
-        if parsed, err := strconv.Atoi(s); err == nil && parsed > 0 {
+    s := r.URL.Query().Get("pageSize")
+    
+    if s != "" {
+        parsed, err := strconv.Atoi(s)
+        if err == nil && parsed > 0 {
             size = parsed
         }
     }
