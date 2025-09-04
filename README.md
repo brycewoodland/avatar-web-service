@@ -61,13 +61,13 @@ go run main.go
 ### Nations
 
 - ```GET /api/v1/nations``` – Get all nations
-- 
+  
 ### Characters
 
 - ```GET /api/v1/characters``` – Get all characters
   
 - ```GET /api/v1/characters?nation=1&page=1&pageSize=10``` – Get characters filtered by nation with pagination
-- 
+
 ### Factions
 
 - ```GET /api/v1/factions``` – Get all factions
