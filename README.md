@@ -68,7 +68,7 @@ go run main.go
 
 - ```GET /api/v1/characters``` – Get all characters
   
-- ```GET /api/v1/characters/{:id} - Get a character by id
+- ```GET /api/v1/characters/{:id}``` - Get a character by id
   
 - ```GET /api/v1/characters?nation=1&page=1&pageSize=10``` – Get characters filtered by nation with pagination
 
