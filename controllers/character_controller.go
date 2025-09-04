@@ -56,3 +56,33 @@ func GetCharactersHandler(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(characters)
 }
+
+func GetCharacterByIDHandler(w http.ResponseWriter, r *http.Request) {
+    // Get "id" from query paramters
+    idStr := r.URL.Query().Get("id")
+    if idStr == "" {
+        http.Error(w, "Missing character ID", http.StatusBadRequest)
+        return
+    }
+
+    characterID, err := strconv.Atoi(idStr)
+    if err != nil || characterID <= 0 {
+        http.Error(w, "Invalid character ID", http.StatusBadRequest)
+        return
+    }
+
+    // Fetch the character from the model
+    character, err := models.GetCharacterByID(characterID)
+    if err != nil {
+        if strings.Contains(err.Error(), "not found") {
+            http.Error(w, err.Error(), http.StatusNotFound)
+            return
+        }
+
+        log.Printf("Error fetching character: %v", err)
+        http.Error(w, "Failed to fetch character", http.StatusInternalServerError)
+        return
+    }
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(character)
+}

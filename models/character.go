@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"fmt"
 	"strconv"
 	"strings"
@@ -95,4 +96,44 @@ func GetAllCharacters(filters map[string]string, limit, offset int) ([]Character
 	}
 
 	return characters, nil
+}
+
+// Fetch Character By ID
+func GetCharacterByID(characterID int) (*Character, error) {
+	query := `
+		SELECT
+			id,
+			name,
+			nation_id,
+			date_of_birth,
+			date_of_death,
+			gender,
+			height,
+			hair_color,
+			eye_color
+		FROM characters
+		WHERE id = $1
+	`
+
+	row := db.DB.QueryRow(query, characterID)
+
+	var c Character
+	err := row.Scan(
+		&c.ID,
+		&c.Name,
+		&c.NationID,
+		&c.DateOfBirth,
+		&c.DateOfDeath,
+		&c.Gender,
+		&c.Height,
+		&c.HairColor,
+		&c.EyeColor,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("character with id %d not found", characterID)
+		}
+		return nil, err
+	}
+	return &c, nil
 }
