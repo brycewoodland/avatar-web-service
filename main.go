@@ -33,6 +33,7 @@ func main() {
 	mux.HandleFunc("/api/v1/characters", controllers.GetCharactersHandler)
 	mux.HandleFunc("/api/v1/characters/", controllers.GetCharacterByIDHandler)
 	mux.HandleFunc("/api/v1/nations", controllers.GetAllNationsHandler)
+	mux.HandleFunc("/api/v1/factions", controllers.GetAllFactionsHandler)
 
 	fmt.Println("Server is running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", mux))

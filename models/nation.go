@@ -11,7 +11,7 @@ type Nation struct {
 }
 
 func GetAllNations() ([]Nation, error) {
-	rows, err := db.DB.Query(`SELECT id, name, description FROM nations`,
+	rows, err := db.DB.Query(`SELECT * FROM nations`,
 	)
 	if err != nil {
 		return nil, err
